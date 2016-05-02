@@ -1,0 +1,22 @@
+[package]
+name = "amble-2d"
+version = "0.1.0"
+authors = ["Tomasz Cichocinski <tomaszcichocinski@gmail.com>"]
+
+[[bin]]
+name = "amble-2d"
+
+[dependencies.math]
+path = "src/math"
+
+[dependencies.engine]
+path = "src/engine"
+
+[dependencies.opengl]
+path = "src/opengl"
+
+[dependencies]
+glutin = "0.4.9"
+time = "0.1.35"
+image = "0.8.0"
+rand = "0.3.14"
