@@ -2,8 +2,6 @@ use std::fmt;
 
 use std::ops::{ Sub, Add, Mul, Div };
 
-use mat4::Mat4;
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Vec4 {
@@ -14,7 +12,6 @@ pub struct Vec4 {
 }
 
 impl Vec4 {
-    /// Returns new Vec4
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
         Vec4 {
             x: x,

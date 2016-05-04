@@ -55,7 +55,6 @@ impl Shader {
                 Err(err) => panic!("Coudn't read_to_string {}: {}", display, Error::description(&err)),
             };
 
-
             let vertex_shader = Shader::compile_shader(&vertex_shader_src[..], gl::VERTEX_SHADER);
             let fragment_shader = Shader::compile_shader(&fragment_shader_src[..], gl::FRAGMENT_SHADER);
             let program = Shader::link_program(vertex_shader, fragment_shader);
@@ -119,9 +118,7 @@ impl Shader {
         }
     }
 
-
     // TODO: set camera (projection, view)
-    // TODO: set lights (directional, point)
 
 }
 

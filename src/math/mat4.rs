@@ -3,14 +3,12 @@ use std::fmt;
 use vec3::Vec3;
 use std::ops::{ Mul };
 
-
 #[derive(Copy, Clone)]
 pub struct Mat4 {
     pub elements: [f32; 16],
 }
 
 impl Mat4 {
-    /// Retuns new identity matrix
     pub fn new(value: f32) -> Mat4 {
         let mut elements: [f32; 16] = [0.0; 16];
         elements[0 + 0 * 4] = value;
@@ -20,7 +18,6 @@ impl Mat4 {
         Mat4 { elements: elements }
     }
 
-    // CORRECT
     pub fn from_perspective(fov: f32, aspect_ratio: f32, near: f32, far: f32) -> Mat4 {
         let mut elements: [f32; 16] = [0.0; 16];
 
@@ -41,7 +38,6 @@ impl Mat4 {
         Mat4 { elements: elements }.transpose()
     }
 
-    // NOT SHURE IF CURRECT
     pub fn from_ortho(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) -> Mat4 {
         let mut elements: [f32; 16] = [0.0; 16];
 

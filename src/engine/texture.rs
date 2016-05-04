@@ -7,22 +7,26 @@ use std::mem;
 
 // use self::gl::types::*;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Texture {
     texture_id: u32,
+    pub width: u32,
+    pub height: u32,
 }
 
-// impl Drop for Texture {
-//     fn drop(&mut self) {
-//         unsafe { gl::DeleteTextures(1, &mut self.texture_id) } ;
-//     }
-// }
+impl Drop for Texture {
+    fn drop(&mut self) {
+        unsafe { gl::DeleteTextures(1, &mut self.texture_id) } ;
+    }
+}
 
 impl Texture {
-    pub fn new(texture_path: &str, anisotropy: f32) -> Texture {
+    pub fn new(texture_path: &str) -> Texture {
 
         let mut texture_id = 0;
-        let mut current_anisotropy = 0.0;
+
+        let mut width: u32 = 0;
+        let mut height: u32 = 0;
 
         unsafe {
             gl::GenTextures(1, &mut texture_id);
@@ -39,12 +43,15 @@ impl Texture {
             let texture_data = image::open(texture_path).expect("Opening image for texture failed");
             let texture_data = texture_data.to_rgba();
 
+            height = texture_data.width();
+            width = texture_data.height();
+
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as i32,
-                texture_data.width() as i32,
-                texture_data.height() as i32,
+                height as i32,
+                width as i32,
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
@@ -53,30 +60,15 @@ impl Texture {
 
             gl::GenerateMipmap(gl::TEXTURE_2D);
 
-            // TODO is anisotropy needed for 2d games????
-
-            let max_anisotropy = 16.0;
-            // gl::GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut max_anisotropy);
-
-            // println!("max anisotropy: {:?}", max_anisotropy);
-
-            if anisotropy > max_anisotropy {
-                current_anisotropy = max_anisotropy;
-            } else if anisotropy < 0.0 {
-                current_anisotropy = 0.0;
-            } else {
-                current_anisotropy = anisotropy;
-            }
-
-            println!("current anisotropy for {:?}: {:?}", texture_path, current_anisotropy);
-
-            gl::TexParameterf(gl::TEXTURE_2D, gl::TEXTURE_MAX_ANISOTROPY_EXT, current_anisotropy);
-
             gl::BindTexture(gl::TEXTURE_2D, 0);
 
         }
 
-        Texture { texture_id: texture_id }
+        Texture {
+            texture_id: texture_id,
+            width: width,
+            height: height
+        }
     }
 
     pub fn bind(&self, location: u32) {

@@ -10,14 +10,14 @@ extern crate opengl as gl;
 
 use gl::types::*;
 
-use std::mem;
-use std::ptr;
+// use std::mem;
+// use std::ptr;
 // use std::str;
 // use std::cmp;
 
 use glutin::*;
 
-use rand::Rng;
+// use rand::Rng;
 
 // use cgmath::*;
 
@@ -28,26 +28,16 @@ use rand::Rng;
 
 // local
 use engine::shader::Shader;
-use engine::texture::Texture;
+use engine::sprite::Sprite;
+use engine::entity::Entity;
+use engine::camera:: { Camera2D };
 
-use math::mat4::Mat4;
-use math::vec4::Vec4;
-use math::vec3::Vec3;
+use engine::transform:: { Transform2D };
+
 use math::vec2::Vec2;
 
 const WIDTH: f32 = 800.0;
 const HEIGHT: f32 = 600.0;
-
-static QUAD_VERTICES: [f32; 24] = [
-    // Positions   // TexCoords
-    -1.0,  1.0,  0.0, 1.0,
-    -1.0, -1.0,  0.0, 0.0,
-     1.0, -1.0,  1.0, 0.0,
-
-    -1.0,  1.0,  0.0, 1.0,
-     1.0, -1.0,  1.0, 0.0,
-     1.0,  1.0,  1.0, 1.0
-];
 
 fn main() {
 
@@ -72,36 +62,17 @@ fn main() {
     // input stuff
     let mut pressed_keys: [bool; 1024] = [false; 1024];
 
-    let texture = Texture::new("res/rust_logo.png", 4.0);
-    let shader = Shader::new("res/simpleShader.vert", "res/simpleShader.frag");
-
-    let mut vbo = 0;
-    let mut vao = 0;
+    let mut camera = Camera2D::new(Vec2::new(0.0, 0.0), 0.0, WIDTH, HEIGHT);
+    let mut entity = Entity::new(
+        Transform2D::new(Vec2::new(0.0, 0.0), 0.0, Vec2::new(1.0, 1.0)),
+        Sprite::new("res/rust_logo.png", Shader::new("res/sprite_shader.vert", "res/sprite_shader.frag"))
+    );
 
     unsafe {
         // gl::Enable(gl::CULL_FACE);
         // gl::FrontFace(gl::CW);
         // gl::CullFace(gl::FRONT_AND_BACK);
         gl::Enable(gl::DEPTH_TEST);
-
-        // create vao and vbo form simple quad
-        gl::GenVertexArrays(1, &mut vao);
-        gl::GenBuffers(1, &mut vbo);
-
-        gl::BindVertexArray(vao);
-
-        // Create a Vertex Buffer Object and copy the vertex data to it
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl::BufferData(gl::ARRAY_BUFFER, (QUAD_VERTICES.len() * mem::size_of::<f32>()) as GLsizeiptr, mem::transmute(&QUAD_VERTICES[0]), gl::STATIC_DRAW);
-
-        // pos
-        gl::EnableVertexAttribArray(0);
-        gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE as GLboolean, 4 * mem::size_of::<f32>() as i32, ptr::null());
-        // uvs
-        gl::EnableVertexAttribArray(1);
-        gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE as GLboolean, 4 * mem::size_of::<f32>() as i32, mem::transmute(2 * mem::size_of::<f32>()));
-
-        gl::BindVertexArray(0);
 
     }
 
@@ -110,9 +81,7 @@ fn main() {
 
         time += 0.16;
         let ts = time::get_time();
-        // println!("{:?}", ts.sec as f64);
         let angle: f64 = ts.sec as f64 + ts.nsec as f64/1000000000.0;
-        // println!("{:?}", time);
 
         // opengl stuff
         unsafe {
@@ -120,18 +89,9 @@ fn main() {
             gl::ClearColor(44.0/255.0, 44.0/255.0, 44.0/255.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 
-            let projection = Mat4::from_ortho(-WIDTH/2.0, WIDTH/2.0, -HEIGHT/2.0, HEIGHT/2.0, 0.1, 100.0);
-            let model = Mat4::from_translation(Vec3::new(0.0, 0.0, 0.0));
-            // let model = Mat4::new(1.0);
-            println!("{:?}", model);
+            entity.transform.rotation = time;
 
-            shader.bind();
-            shader.set_uniform_matrix4fv("projection", projection);
-            shader.set_uniform_matrix4fv("model", model);
-
-            gl::BindVertexArray(vao);
-            gl::DrawArrays(gl::TRIANGLES, 0, 6);
-            gl::BindVertexArray(0);
+            entity.draw(&mut camera);
 
         }
 
@@ -146,15 +106,9 @@ fn main() {
                 Event::KeyboardInput(ElementState::Released, _, Some(x)) => {
                     pressed_keys[x as usize] = false;
                 },
-                Event::MouseMoved((x, y)) => { },
+                // Event::MouseMoved((x, y)) => { },
                 _ => (),
             }
         }
     }
-
-    unsafe {
-        gl::DeleteBuffers(1, &vbo);
-        gl::DeleteVertexArrays(1, &vao);
-    }
-
 }

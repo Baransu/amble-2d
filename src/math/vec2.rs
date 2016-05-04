@@ -2,6 +2,8 @@ use std::fmt;
 
 use std::ops::{ Sub, Add, Mul, Div };
 
+use vec3::Vec3;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Vec2 {
@@ -10,7 +12,6 @@ pub struct Vec2 {
 }
 
 impl Vec2 {
-    /// Returns new Vec2
     pub fn new(x: f32, y: f32 ) -> Vec2 {
         Vec2 {
             x: x,
@@ -45,6 +46,14 @@ impl Vec2 {
             return Vec2 { x: x, y: y };
         }
         Vec2 { x: 0.0, y: 0.0 }
+    }
+
+    pub fn to_vec3(&self, z: f32) -> Vec3 {
+        Vec3 {
+            x: self.x,
+            y: self.y,
+            z: z,
+        }
     }
 
 }

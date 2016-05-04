@@ -13,7 +13,6 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    /// Returns new vec3
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 {
             x: x,
